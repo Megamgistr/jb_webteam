@@ -1,13 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { IDEA_HELP } from "../../../src/constants/idea_page/data_toc_scroll_atr_value";
-import { HelpIdea } from "../../../src/ui/pages/HelpIdea";
+import { HelpIdeaPage } from "../../../src/ui/pages/HelpIdeaPage";
 
 let ideaPage;
 let toc;
 
 test.beforeEach(async ({ page }) => {
   await page.goto("");
-	ideaPage = new HelpIdea(page);
+	ideaPage = new HelpIdeaPage(page);
 	toc = ideaPage.tableOfContent();
 });
 

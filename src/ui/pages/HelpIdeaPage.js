@@ -1,9 +1,9 @@
 import { AbstractPageObject } from "../AbstractPageObject";
 import { Header } from "../elements/headers/Header";
-import { TableOfContent } from "../elements/sidebars/table_of_content";
+import { TableOfContent } from "../elements/sidebars/TableOfContent";
 import { Article } from "../elements/viewports/Article";
 
-export class HelpIdea extends AbstractPageObject {
+export class HelpIdeaPage extends AbstractPageObject {
 	constructor(page) {
 		super(page);
 	}

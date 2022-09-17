@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { IDEA_HELP } from "../../../src/constants/idea_page/data_toc_scroll_atr_value";
-import { H1Titles } from "../../../src/constants/idea_page/titels";
-import { HelpIdea } from "../../../src/ui/pages/HelpIdea";
+import { H1Titles } from "../../../src/constants/idea_page/titles";
+import { HelpIdeaPage } from "../../../src/ui/pages/HelpIdeaPage";
 
 let ideaPage;
 let toc;
@@ -10,7 +10,7 @@ let startUrl;
 
 test.beforeEach(async ({ page }) => {
   await page.goto("");
-  ideaPage = new HelpIdea(page);
+  ideaPage = new HelpIdeaPage(page);
 	toc = ideaPage.tableOfContent();
 	article = ideaPage.article();
 	startUrl = await page.url();
