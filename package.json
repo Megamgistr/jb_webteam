@@ -1,0 +1,17 @@
+{
+  "name": "jb_webteam",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "eslint": "npx eslint --fix"
+  },
+  "keywords": [],
+  "author": "Nikita",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.25.2",
+    "eslint": "^8.23.1"
+  }
+}
