@@ -46,7 +46,7 @@ export class TableOfContent extends AbstractPageObject {
 	}
 
 	async checkArrowOfSectionVisible(data_toc_scroll) {
-		return await this.checkElemVisible(`arrow section ${data_toc_scroll}`, this.#arowOfSection(data_toc_scroll));
+		return await this.checkElemVisible(`arrow of section ${data_toc_scroll}`, this.#arowOfSection(data_toc_scroll));
 	}
 
 	async checkArrowOfSectionHidden(data_toc_scroll) {
@@ -59,11 +59,6 @@ export class TableOfContent extends AbstractPageObject {
 				await expect(this.#selectedSection()).toHaveAttribute("data-toc-scroll", data_toc_scroll);
 				return this;
 			});
-	}
-
-	async getSelectedSectionDtcAttr() {
-		return await test.step("Get selected section dtc attr",
-			async () => await this.#selectedSection().getAttribute("data-toc-scroll"));
 	}
 
 	async clickSection(data_toc_scroll) {
