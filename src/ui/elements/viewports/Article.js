@@ -9,8 +9,8 @@ export class Article extends AbstractPageObject {
 		super(page);
 	}
 
-	async clickFirstItemInPath() {
-		return await test.step("Click first item in path",
+	async clickFirstSectionInPath() {
+		return await test.step("Click first section in path",
 			async () =>  {
 				await this.#firstItemInPath().click();
 				return this;

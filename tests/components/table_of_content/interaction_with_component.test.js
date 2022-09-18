@@ -16,81 +16,77 @@ test.beforeEach(async ({ page }) => {
 	startUrl = await page.url();
 });
 
-test.describe("Interact with items in table of component", () => {
-  test("click item with link", async ({ page }) => {
-		await checkNestedItem(IDEA_HELP.ACCESSIBILITY, false);
-		await toc.clickItem(IDEA_HELP.GETTING_STARTED);
-		const url = await page.url();
-		const href = await toc.getItemHrefAttr(IDEA_HELP.GETTING_STARTED);
-		await test.step("Check that url contain href value", () => {
-			expect(url).toContain(href);
-		});
-		await article.checkH1Title(H1Titles.GETTING_STARTED);
-		await checkNestedItem(IDEA_HELP.ACCESSIBILITY, true);
+test.describe("Interact with sections in table of component", () => {
+  test("select not nested section with link", async ({ page }) => {
+		await selectSectionExample(page, IDEA_HELP.GROOVY, IDEA_HELP.RUN_DEBUG_STARTED, H1Titles.GROOVY);
   });
 
-  test("click item with link in second depth", async ({ page }) => {
-		await toc.clickItem(IDEA_HELP.GROOVY);
-		await checkNestedItem(IDEA_HELP.RUN_DEBUG_CONFIGURATION, false);
-		await toc.clickItem(IDEA_HELP.RUN_DEBUG_STARTED);
-		const url = await page.url();
-		const href = await toc.getItemHrefAttr(IDEA_HELP.RUN_DEBUG_STARTED);
-		await test.step("Check that url contain href value", () => {
-			expect(url).toContain(href);
-		});
-		await article.checkH1Title(H1Titles.RUN_DEBUG_STARTED);
-		await checkNestedItem(IDEA_HELP.RUN_DEBUG_CONFIGURATION, true);
+  test("select nested section with link", async ({ page }) => {
+		await toc.clickArrowOfSection(IDEA_HELP.GROOVY);
+		await selectSectionExample(page, IDEA_HELP.RUN_DEBUG_STARTED, IDEA_HELP.RUN_DEBUG_CONFIGURATION, H1Titles.RUN_DEBUG_STARTED);
   });
 
-  test("click item without link", async ({ page }) => {
-		expect(await toc.isItemVisible(IDEA_HELP.ANALYSIS_DATA_FLOW)).toBeFalsy();
-		await toc.clickItem(IDEA_HELP.ANALYSIS);
+  test("select section without link", async ({ page }) => {
+		await toc.checkSectionHidden(IDEA_HELP.ANALYSIS_DATA_FLOW);
+		await toc.clickSection(IDEA_HELP.ANALYSIS);
 		const afterUrl = await page.url();
 		await checkUrl(startUrl, afterUrl);
-		await checkNestedItem(IDEA_HELP.ANALYSIS_DATA_FLOW, true);
-		await toc.clickItem(IDEA_HELP.ANALYSIS);
-		await checkNestedItem(IDEA_HELP.ANALYSIS_DATA_FLOW, false);
+		await toc.checkSectionVisible(IDEA_HELP.ANALYSIS_DATA_FLOW);
+		await toc.clickSection(IDEA_HELP.ANALYSIS);
+		await toc.checkSectionHidden(IDEA_HELP.ANALYSIS_DATA_FLOW);
   });
 	
-  test("click item arrow", async ({ page }) => {
-		await checkNestedItem(IDEA_HELP.ACCESSIBILITY, false);
-		await toc.clickItemArrow(IDEA_HELP.GETTING_STARTED);
+  test("click arrow of section with link", async ({ page }) => {
+		await toc.checkSectionHidden(IDEA_HELP.ACCESSIBILITY);
+		await toc.clickArrowOfSection(IDEA_HELP.GETTING_STARTED);
 		const afterUrl = await page.url();
 		await checkUrl(startUrl, afterUrl);
-		await checkNestedItem(IDEA_HELP.ACCESSIBILITY, true);
-		await toc.clickItemArrow(IDEA_HELP.GETTING_STARTED);
-		await checkNestedItem(IDEA_HELP.ACCESSIBILITY, false);
+		await toc.checkSectionVisible(IDEA_HELP.ACCESSIBILITY);
+		await toc.clickArrowOfSection(IDEA_HELP.GETTING_STARTED);
+		await toc.checkSectionHidden(IDEA_HELP.ACCESSIBILITY);
   });
 
-  test("click item by article path", async ({ page }) => {
-		await toc.clickItem(IDEA_HELP.GETTING_STARTED);
+  test("select section by path in article", async ({ page }) => {
+		await toc.clickSection(IDEA_HELP.GETTING_STARTED);
 		const beforeUrl = await page.url();
-		await toc.clickItem(IDEA_HELP.ACCESSIBILITY);
-		await article.clickFirstItemInPath();
+		await toc.clickSection(IDEA_HELP.ACCESSIBILITY);
+		await article.clickFirstSectionInPath();
 		const afterUrl = await page.url();
-		await test.step("Check selected item", async () => {
-			expect(await toc.getSelectedItemDtcAttr()).toEqual(IDEA_HELP.GETTING_STARTED);
-		});
+		await toc.checkSelectedSection(IDEA_HELP.GETTING_STARTED);
 		await checkUrl(beforeUrl, afterUrl);
   });
 
-	test("scroll to item", async () => {
-		expect(await toc.isItemVisibleInViewport(IDEA_HELP.GROOVY)).toBeFalsy();
-		await toc.scrollToItem(IDEA_HELP.GROOVY);
-		expect(await toc.isItemVisibleInViewport(IDEA_HELP.GROOVY)).toBeTruthy();
+	test("scroll to hidden section", async () => {
+		expect(await toc.isSectionVisibleInViewport(IDEA_HELP.GETTING_STARTED)).toBeTruthy();
+		expect(await toc.isSectionVisibleInViewport(IDEA_HELP.GROOVY)).toBeFalsy();
+		await toc.scrollToSection(IDEA_HELP.GROOVY);
+		expect(await toc.isSectionVisibleInViewport(IDEA_HELP.GROOVY)).toBeTruthy();
+		expect(await toc.isSectionVisibleInViewport(IDEA_HELP.GETTING_STARTED)).toBeFalsy();
+		await toc.scrollToSection(IDEA_HELP.GETTING_STARTED);
+		expect(await toc.isSectionVisibleInViewport(IDEA_HELP.GROOVY)).toBeFalsy();
+		expect(await toc.isSectionVisibleInViewport(IDEA_HELP.GETTING_STARTED)).toBeTruthy();
   });
 });
 
+async function selectSectionExample(page, main, nested, title) {
+	await toc.checkSectionHidden(nested);
+	await toc.clickSection(main);
+	const url = await page.url();
+	const href = await toc.getSectionLinkHrefAttr(main);
+	await test.step("Check that url contain href value", () => {
+		expect(url).toContain(href);
+	});
+	await article.checkH1Title(title);
+	await toc.checkSectionVisible(nested);
+	await toc.clickSection(main);
+	const afterUrl = await page.url();
+	await checkUrl(url, afterUrl);
+	await toc.checkSectionHidden(nested);
+}
 
 async function checkUrl(expected, actual) {
 	await test.step("Check url", () => {
 		expect(expected).toEqual(actual);
-	});
-}
-
-async function checkNestedItem(doc, expected) {
-	await test.step("Check nested item", async () => {
-		expect(await toc.isItemVisible(doc)).toEqual(expected);
 	});
 }
 

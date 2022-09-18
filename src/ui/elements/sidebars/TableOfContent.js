@@ -1,86 +1,102 @@
 import { AbstractPageObject } from "../../AbstractPageObject";
-import { test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { isInViewport } from "../../../helpers/is_in_viewport";
 
 export class TableOfContent extends AbstractPageObject {
-	#sidebarNav = () => this.page.locator("[data-test*=\"app__sidebar\"]");
-	#itemByDtcLi = (dts) => this.page.locator(`[data-toc-scroll="${dts}"]`);
-	#itemArow = (dts) => this.#itemByDtcLi(dts).locator("svg");
-	#itemLink = (dts) => this.#itemByDtcLi(dts).locator("a");
-	#selectedItem = () => this.page.locator("[data-toc-scroll]", {has: this.page.locator(".toc-item--selected")});
+	#sidebarNav = () => this.page.locator("[data-test*='app__sidebar']");
+	#sectionByDtcLi = (dts) => this.page.locator(`nav [data-toc-scroll="${dts}"]`);
+	#arowOfSection = (dts) => this.#sectionByDtcLi(dts).locator("svg");
+	#sectionLink = (dts) => this.#sectionByDtcLi(dts).locator("a");
+	#selectedSection = () => this.page.locator("[data-toc-scroll]", {has: this.page.locator(".toc-item--selected")});
 
 	constructor(page) {
 		super(page);
 	}
 
-
-	async isSidebarVisible() {
-		return await test.step("Define if sidebar visible",
-			async () => await this.#sidebarNav().isVisible());
+	async checkSidebarVisible() {
+		return await this.checkElemVisible("sidebar", this.#sidebarNav());
 	}
 
-	async isSidebarVisibleSmallScreen() {
-		return await test.step("Define if sidebar visible",
+	async checkSidebarHidden() {
+		return await this.checkElemHidden("sidebar", this.#sidebarNav());
+	}
+
+	async checkSidebarVisibleSmallScreen() {
+		return await test.step("Check that sidebar visible in small screen",
 			async () => {
-				const data = await this.#sidebarNav().getAttribute("data-test");
-				return data.includes("visible");
-			});
-	}
-
-	async isItemVisible(data_toc_scroll) {
-		return await test.step(`Define if item ${data_toc_scroll} visible`,
-			async () => await this.#itemByDtcLi(data_toc_scroll).isVisible());
-	}
-
-	async isItemWithArrow(data_toc_scroll) {
-		return await test.step(`Define if item ${data_toc_scroll} with arrow`,
-			async () => await this.#itemArow(data_toc_scroll).isVisible());
-	}
-
-	async getSelectedItemDtcAttr() {
-		return await test.step("Get selected item",
-			async () => await this.#selectedItem().getAttribute("data-toc-scroll"));
-	}
-
-	async clickItem(data_toc_scroll) {
-		return await test.step(`Click item ${data_toc_scroll}`,
-			async () => {
-				await this.#itemByDtcLi(data_toc_scroll).click();
+				await expect(this.#sidebarNav()).toHaveAttribute("data-test", /visible/);
 				return this;
 			});
 	}
 
-	async scrollToItem(data_toc_scroll) {
-		return await test.step(`Scroll to item ${data_toc_scroll}`,
+	async checkSidebarHiddenSmallScreen() {
+		return await test.step("Check that sidebar hidden in small screen",
 			async () => {
-				await this.#itemByDtcLi(data_toc_scroll).scrollIntoViewIfNeeded();
+				await expect(this.#sidebarNav()).not.toHaveAttribute("data-test", /visible/);
 				return this;
 			});
 	}
 
-	async getItemHrefAttr(data_toc_scroll) {
-		return await test.step(`Get item ${data_toc_scroll} href attr`,
-			async () =>  await this.#itemLink(data_toc_scroll).getAttribute("href"));
+	async checkSectionVisible(data_toc_scroll) {
+		return await this.checkElemVisible(`section ${data_toc_scroll}`, this.#sectionByDtcLi(data_toc_scroll));
 	}
 
-	async hoverItem(data_toc_scroll) {
-		return await test.step(`Hover item ${data_toc_scroll}`,
+	async checkSectionHidden(data_toc_scroll) {
+		return await this.checkElemHidden(`section ${data_toc_scroll}`, this.#sectionByDtcLi(data_toc_scroll));
+	}
+
+	async checkArrowOfSectionVisible(data_toc_scroll) {
+		return await this.checkElemVisible(`arrow section ${data_toc_scroll}`, this.#arowOfSection(data_toc_scroll));
+	}
+
+	async checkArrowOfSectionHidden(data_toc_scroll) {
+		return await this.checkElemHidden(`arrow of section ${data_toc_scroll}`, this.#arowOfSection(data_toc_scroll));
+	}
+
+	async checkSelectedSection(data_toc_scroll) {
+		return await test.step(`Check that selected section is ${data_toc_scroll}`,
 			async () => {
-				await this.#itemByDtcLi(data_toc_scroll).hover();
+				await expect(this.#selectedSection()).toHaveAttribute("data-toc-scroll", data_toc_scroll);
 				return this;
 			});
 	}
 
-	async clickItemArrow(data_toc_scroll) {
-		return await test.step(`Click item ${data_toc_scroll} arrow`,
+	async getSelectedSectionDtcAttr() {
+		return await test.step("Get selected section dtc attr",
+			async () => await this.#selectedSection().getAttribute("data-toc-scroll"));
+	}
+
+	async clickSection(data_toc_scroll) {
+		return await test.step(`Click section ${data_toc_scroll}`,
 			async () => {
-				await this.#itemArow(data_toc_scroll).click();
+				await this.#sectionByDtcLi(data_toc_scroll).click();
 				return this;
 			});
 	}
 
-	async isItemVisibleInViewport(data_toc_scroll) {
-		return await test.step(`Define if item visible ${data_toc_scroll} in viewport`,
-			async () => await this.#itemByDtcLi(data_toc_scroll).evaluate(isInViewport));
+	async scrollToSection(data_toc_scroll) {
+		return await test.step(`Scroll to section ${data_toc_scroll}`,
+			async () => {
+				await this.#sectionByDtcLi(data_toc_scroll).scrollIntoViewIfNeeded();
+				return this;
+			});
+	}
+
+	async getSectionLinkHrefAttr(data_toc_scroll) {
+		return await test.step(`Get section link ${data_toc_scroll} href attr`,
+			async () =>  await this.#sectionLink(data_toc_scroll).getAttribute("href"));
+	}
+
+	async clickArrowOfSection(data_toc_scroll) {
+		return await test.step(`Click arrow of section ${data_toc_scroll}`,
+			async () => {
+				await this.#arowOfSection(data_toc_scroll).click();
+				return this;
+			});
+	}
+
+	async isSectionVisibleInViewport(data_toc_scroll) {
+		return await test.step(`Define if section visible ${data_toc_scroll} in viewport`,
+			async () => await this.#sectionByDtcLi(data_toc_scroll).evaluate(isInViewport));
 	}
 }
